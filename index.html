@@ -1,53 +1,90 @@
 <!DOCTYPE html>
 <html>
 	<head>
-		<meta charset="UTF-8" />
-		<title>Loop</title>
-		
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+		<title>Looper</title>
+
 		<!-- Bootstrap -->
-		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
-		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
-		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
-		
-		<!-- Vue.js -->
-		<script src="https://npmcdn.com/vue/dist/vue.js"></script>
-		
-		<!-- Application -->
-		<script src="app.js"></script>
+		<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+
+		<!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+		<!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+		<!--[if lt IE 9]>
+		<script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+		<script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+		<![endif]-->
+
+		<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+		<!-- Include all compiled plugins (below), or include individual files as needed -->
+		<script src="https://www.atlasestateagents.co.uk/javascript/tether.min.js"></script>
+		<script src="js/bootstrap.min.js"></script>
+		<script src="js/app.js"></script>
 	</head>
 
 	<body>
-		<div class="container">
+		<div class="container" id="looper">
 			<p class="row">
 			<div class="col-sm-3">
 				<div class="well well-sm">
-					<button type="button" class="btn btn-info btn-lg">Pad</button>
-				</div>
-			</div>
-			<div class="col-sm-3">
-				<div class="well well-sm">
-					<button type="button" class="btn btn-info btn-lg">Pad</button>
-				</div>
-			</div>
-			<div class="col-sm-3">
-				<div class="well well-sm">
-					<button type="button" class="btn btn-info btn-lg">Pad</button>
+					<div class="row">
+						<div class="col-sm-6">
+							<input type="image" src="padGreen.png" id="pad1" value="Off" onclick="togglePic(this.id)">
+						</div>
+						<div class="col-sm-6">
+							<button class="btn-sm btn-danger" onclick="eraseLoop(document.getElementById('pad1').id)">Erase</button>
+						</div>
+					</div>
+					<div class="row" style="padding-left: 10px">
+						<input type="range" value="75" style="width: 100px; height: 10px;">
+					</div>
 				</div>
 			</div>
 			<div class="col-sm-3">
 				<div class="well well-sm">
 					<div class="row">
 						<div class="col-sm-6">
-							<button type="button" class="btn btn-info btn-lg btn-block">Pad</button>
+							<input type="image" src="padGreen.png" id="pad2" value="Off" onclick="togglePic(this.id)">
 						</div>
 						<div class="col-sm-6">
-							<div class="row">
-								<button type="button" class="btn btn-danger btn-sm">mute</button>
-							</div>
-							<div class="row">
-								<button type="button" class="btn btn-warning btn-sm">solo</button>
-							</div>
+							<button class="btn-sm btn-danger" onclick="eraseLoop(document.getElementById('pad2').id)">Erase</button>
 						</div>
+					</div>
+					<div class="row" style="padding-left: 10px">
+						<input type="range" value="75" style="width: 100px; height: 10px;">
+					</div>
+				</div>
+			</div>
+			<div class="col-sm-3">
+				<div class="well well-sm">
+					<div class="row">
+						<div class="col-sm-6">
+							<input type="image" src="padGreen.png" id="pad3" value="Off" onclick="togglePic(this.id)">
+						</div>
+						<div class="col-sm-6">
+							<button class="btn-sm btn-danger" onclick="eraseLoop(document.getElementById('pad3').id)">Erase</button>
+						</div>
+					</div>
+					<div class="row" style="padding-left: 10px">
+						<input type="range" value="75" style="width: 100px; height: 10px;">
+					</div>
+				</div>
+			</div>
+			<div class="col-sm-3">
+				<div class="well well-sm">
+					<div class="row">
+						<div class="col-sm-6">
+							<input type="image" src="padGreen.png" id="pad4" value="Off" onclick="togglePic(this.id)">
+						</div>
+						<div class="col-sm-6">
+							<button class="btn-sm btn-danger" onclick="eraseLoop(document.getElementById('pad4').id)">Erase</button>
+						</div>
+					</div>
+					<div class="row" style="padding-left: 10px">
+						<input type="range" value="75" style="width: 100px; height: 10px;">
 					</div>
 				</div>
 			</div>
