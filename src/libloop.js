@@ -207,7 +207,91 @@ var AudioLibrary;
 })(AudioLibrary || (AudioLibrary = {})); // end of AudioLibrary Module
 console.log("Starting program|\n\n");
 console.log("Commencing Program Audio Looper using Web Audio API|\n");
-let Pad1 = new AudioLibrary.TrackCollection();
+let trackCol = new AudioLibrary.TrackCollection();
 console.log("Constructor has ended AudioContext initialized|\n");
-let x = 1;
-Pad1.CreateTrack(x);
+//let x = 1;
+//Pad1.CreateTrack(x);
+
+function handleClick(x){
+
+    if(document.getElementById(x).value === 'Ready'){
+        document.getElementById(x).src = "padRed.png";
+        document.getElementById(x).value = 'Rec';
+        //Record loop
+        trackCol.CreateTrack(x);
+
+    }
+    else if(document.getElementById(x).value === 'Off' || document.getElementById(x).value ==='Rec'){
+        document.getElementById(x).src = "padOrange.png";
+        document.getElementById(x).value = 'On';
+        //Play loop
+        //trackCol.Track(x).Play(0);
+    }
+    else{
+        document.getElementById(x).src = "padYellow.png";
+        document.getElementById(x).value = 'Off';
+        //pause loop
+        trackCol.Stop();
+    }
+}
+
+function eraseLoop(x){
+    document.getElementById(x).src = "padGreen.png";
+    document.getElementById(x).value = 'Ready';
+    //Erase loop
+
+}
+
+$(function($) {
+
+    $(".knob").knob({
+        change: function (value) {
+            //console.log("change : " + value);
+        },
+        release: function (value) {
+            //console.log(this.$.attr('value'));
+            console.log("release : " + value);
+        },
+        cancel: function () {
+            console.log("cancel : ", this);
+        },
+        /*format : function (value) {
+         return value + '%';
+         },*/
+        draw: function () {
+
+            // "tron" case
+            if (this.$.data('skin') == 'tron') {
+
+                this.cursorExt = 0.3;
+
+                var a = this.arc(this.cv)  // Arc
+                    , pa                   // Previous arc
+                    , r = 1;
+
+                this.g.lineWidth = this.lineWidth;
+
+                if (this.o.displayPrevious) {
+                    pa = this.arc(this.v);
+                    this.g.beginPath();
+                    this.g.strokeStyle = this.pColor;
+                    this.g.arc(this.xy, this.xy, this.radius - this.lineWidth, pa.s, pa.e, pa.d);
+                    this.g.stroke();
+                }
+
+                this.g.beginPath();
+                this.g.strokeStyle = r ? this.o.fgColor : this.fgColor;
+                this.g.arc(this.xy, this.xy, this.radius - this.lineWidth, a.s, a.e, a.d);
+                this.g.stroke();
+
+                this.g.lineWidth = 2;
+                this.g.beginPath();
+                this.g.strokeStyle = this.o.fgColor;
+                this.g.arc(this.xy, this.xy, this.radius - this.lineWidth + 1 + this.lineWidth * 2 / 3, 0, 2 * Math.PI, false);
+                this.g.stroke();
+
+                return false;
+            }
+        }
+    });
+});
