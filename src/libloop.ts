@@ -17,7 +17,7 @@ module AudioLibrary{
         /*
         *   Contructor()
         *       --initialize AudioCtx( AudioContext)
-          */
+        */
         constructor(){
             try{
                 console.log("Init audioContext|\n");
@@ -45,10 +45,17 @@ module AudioLibrary{
             navigator.getUserMedia ( constraints,
                 function(stream) {
                     let recordedAudio = [];
-                    let recordingTime = 5000; //milliseconds
+                    let recordingTime = 45000; //milliseconds
+
+                    //plays sound in the background
+                    let source = AudioCtx.createMediaStreamSource(stream);
+                    source.connect(AudioCtx.destination);
+
                     console.log("creating mediaRecorder|\n");
                     let mediaRecorder = new MediaRecorder(stream);
                     console.log("created mediaRecorder...creating ondataavailable|\n");
+
+
 
                     function AudioDataFromInput(event){
                         try{
@@ -59,28 +66,47 @@ module AudioLibrary{
                         }
                     }
 
-                    //on media recorder stop asks to download api. written for testing
-                    //need to implement into track and region classes
-                    mediaRecorder.onstop = function (){
-                        console.log("Download the audio file");
-                        let audioBuf = new Blob(recordedAudio, {
-                            type: 'audio/ogg; codecs=opus'
-                        });
-                        let AudioURL = URL.createObjectURL(audioBuf);
-                        let a = document.createElement('a');
-                        document.body.appendChild(a);
-                        a.style = 'display: none';
-                        a.href = AudioURL;
-                        a.download = 'test.ogg';
-                        a.click();
-                        window.URL.revokeObjectURL(AudioURL);
+                    /*
+                        Onstop loops and plays audio after recording.
+                    */
+                    mediaRecorder.onstop = function () {
+                        let audioBlob = new Blob(recordedAudio, { 'type': 'audio/ogg; codecs=opus' });
+                        let audioURL = URL.createObjectURL(audioBlob);
+                        let source1 = AudioCtx.createBufferSource();
+                        source1.connect(AudioCtx.destination);
+                        let aReq = new XMLHttpRequest();
+                        aReq.open('GET', audioURL, true);
+                        aReq.responseType = 'arraybuffer';
+                        aReq.onload = function () {
+                            AudioCtx.decodeAudioData(aReq.response, function (aBuf) {
+                                source1.buffer = aBuf;
+                                source1.start(0);
+                                source1.loop = true;
+                            }, function () {
+                                console.log('The LoopPlay request failed.');
+                            });
+                        }
+                        aReq.send();
+                        console.log("Playing Audio");
+                    }
+
+                     //stops recording sound
+                    let StopRecording = function(){
+                        mediaRecorder.stop();
+                        console.log("Stopped Recording");
                     }
 
                     mediaRecorder.ondataavailable = AudioDataFromInput;
                     console.log("Start mediaRecorder|\n");
-                    mediaRecorder.start(recordingTime);
-                    console.log("Stopped mediaRecorder|\n");
-                    //mediaRecorder.stop();
+                    mediaRecorder.start();
+
+                    //stop recording after specified time
+                    setTimeout( function(){
+                        StopRecording()
+                        },
+                        recordingTime
+                    );
+                    console.log("Stopped Recording|\n");
 
                 },
                 function(err) {
@@ -90,11 +116,11 @@ module AudioLibrary{
             } else {
             console.log('getUserMedia not supported on your browser!');
             }
-
         }
 
         //Plays All Track
         public Play(startTime : number){
+            
         }
 
         // plays and repeats all pads
@@ -130,8 +156,10 @@ module AudioLibrary{
 
             //Creates new Region
             public AddAudio(){
+/*
                 this.Regions = [];
                 this.Regions.push( new TrackClasses.Region());
+*/
             }
 
             //Output to the provided MixChannels
@@ -186,11 +214,11 @@ module AudioLibrary{
                 private sourceNode : MediaStreamAudioSourceNode;
                 private mediaRecorder : MediaRecorder;
 
-                constructor( createdSource : MediaStreamAudioSourceNode, newMediaStream : MediaStream){
-                    /*
+                constructor( createdSource : MediaStreamAudioSourceNode, newMediaStream : MediaStream, audioBuf : any){
+                    this.audioBuffer = audioBuf;
                     this.sourceNode = createdSource;
                     this.mediaRecorder = newMediaStream;
-                    */
+                    document.write("new region created");
                 }
 
                 public AddContentFile( ArrayBuffer){
