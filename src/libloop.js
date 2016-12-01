@@ -11,7 +11,7 @@ var AudioLibrary;
         /*
         *   Contructor()
         *       --initialize AudioCtx( AudioContext)
-          */
+        */
         constructor() {
             try {
                 console.log("Init audioContext|\n");
@@ -38,7 +38,10 @@ var AudioLibrary;
                 console.log('getUserMedia supported.');
                 navigator.getUserMedia(AudioLibrary.constraints, function (stream) {
                     let recordedAudio = [];
-                    let recordingTime = 5000; //milliseconds
+                    let recordingTime = 45000; //milliseconds
+                    //plays sound in the background
+                    let source = AudioLibrary.AudioCtx.createMediaStreamSource(stream);
+                    source.connect(AudioLibrary.AudioCtx.destination);
                     console.log("creating mediaRecorder|\n");
                     let mediaRecorder = new MediaRecorder(stream);
                     console.log("created mediaRecorder...creating ondataavailable|\n");
@@ -51,27 +54,42 @@ var AudioLibrary;
                             console.log("Error in data input\n" + err);
                         }
                     }
-                    //on media recorder stop asks to download api. written for testing
-                    //need to implement into track and region classes
+                    /*
+                        Onstop loops and plays audio after recording.
+                    */
                     mediaRecorder.onstop = function () {
-                        console.log("Download the audio file");
-                        let audioBuf = new Blob(recordedAudio, {
-                            type: 'audio/ogg; codecs=opus'
-                        });
-                        let AudioURL = URL.createObjectURL(audioBuf);
-                        let a = document.createElement('a');
-                        document.body.appendChild(a);
-                        a.style = 'display: none';
-                        a.href = AudioURL;
-                        a.download = 'test.ogg';
-                        a.click();
-                        window.URL.revokeObjectURL(AudioURL);
+                        let audioBlob = new Blob(recordedAudio, { 'type': 'audio/ogg; codecs=opus' });
+                        let audioURL = URL.createObjectURL(audioBlob);
+                        let source1 = AudioLibrary.AudioCtx.createBufferSource();
+                        source1.connect(AudioLibrary.AudioCtx.destination);
+                        let aReq = new XMLHttpRequest();
+                        aReq.open('GET', audioURL, true);
+                        aReq.responseType = 'arraybuffer';
+                        aReq.onload = function () {
+                            AudioLibrary.AudioCtx.decodeAudioData(aReq.response, function (aBuf) {
+                                source1.buffer = aBuf;
+                                source1.start(0);
+                                source1.loop = true;
+                            }, function () {
+                                console.log('The LoopPlay request failed.');
+                            });
+                        };
+                        aReq.send();
+                        console.log("Playing Audio");
+                    };
+                    //stops recording sound
+                    let StopRecording = function () {
+                        mediaRecorder.stop();
+                        console.log("Stopped Recording");
                     };
                     mediaRecorder.ondataavailable = AudioDataFromInput;
                     console.log("Start mediaRecorder|\n");
-                    mediaRecorder.start(recordingTime);
-                    console.log("Stopped mediaRecorder|\n");
-                    //mediaRecorder.stop();
+                    mediaRecorder.start();
+                    //stop recording after specified time
+                    setTimeout(function () {
+                        StopRecording();
+                    }, recordingTime);
+                    console.log("Stopped Recording|\n");
                 }, function (err) {
                     console.log('The following gUM error occured: ' + err);
                 });
@@ -107,8 +125,10 @@ var AudioLibrary;
             }
             //Creates new Region
             AddAudio() {
-                this.Regions = [];
-                this.Regions.push(new TrackClasses.Region());
+                /*
+                                this.Regions = [];
+                                this.Regions.push( new TrackClasses.Region());
+                */
             }
             //Output to the provided MixChannels
             OutputToMixChannnel(mixChannel) {
@@ -143,11 +163,11 @@ var AudioLibrary;
         (function (TrackClasses) {
             //Region Class of Track
             class Region {
-                constructor(createdSource, newMediaStream) {
-                    /*
+                constructor(createdSource, newMediaStream, audioBuf) {
+                    this.audioBuffer = audioBuf;
                     this.sourceNode = createdSource;
                     this.mediaRecorder = newMediaStream;
-                    */
+                    document.write("new region created");
                 }
                 AddContentFile(ArrayBuffer) {
                 }
@@ -207,91 +227,7 @@ var AudioLibrary;
 })(AudioLibrary || (AudioLibrary = {})); // end of AudioLibrary Module
 console.log("Starting program|\n\n");
 console.log("Commencing Program Audio Looper using Web Audio API|\n");
-let trackCol = new AudioLibrary.TrackCollection();
+let Pad1 = new AudioLibrary.TrackCollection();
 console.log("Constructor has ended AudioContext initialized|\n");
-//let x = 1;
-//Pad1.CreateTrack(x);
-
-function handleClick(x){
-
-    if(document.getElementById(x).value === 'Ready'){
-        document.getElementById(x).src = "padRed.png";
-        document.getElementById(x).value = 'Rec';
-        //Record loop
-        trackCol.CreateTrack(x);
-
-    }
-    else if(document.getElementById(x).value === 'Off' || document.getElementById(x).value ==='Rec'){
-        document.getElementById(x).src = "padOrange.png";
-        document.getElementById(x).value = 'On';
-        //Play loop
-        //trackCol.Track(x).Play(0);
-    }
-    else{
-        document.getElementById(x).src = "padYellow.png";
-        document.getElementById(x).value = 'Off';
-        //pause loop
-        trackCol.Stop();
-    }
-}
-
-function eraseLoop(x){
-    document.getElementById(x).src = "padGreen.png";
-    document.getElementById(x).value = 'Ready';
-    //Erase loop
-
-}
-
-$(function($) {
-
-    $(".knob").knob({
-        change: function (value) {
-            //console.log("change : " + value);
-        },
-        release: function (value) {
-            //console.log(this.$.attr('value'));
-            console.log("release : " + value);
-        },
-        cancel: function () {
-            console.log("cancel : ", this);
-        },
-        /*format : function (value) {
-         return value + '%';
-         },*/
-        draw: function () {
-
-            // "tron" case
-            if (this.$.data('skin') == 'tron') {
-
-                this.cursorExt = 0.3;
-
-                var a = this.arc(this.cv)  // Arc
-                    , pa                   // Previous arc
-                    , r = 1;
-
-                this.g.lineWidth = this.lineWidth;
-
-                if (this.o.displayPrevious) {
-                    pa = this.arc(this.v);
-                    this.g.beginPath();
-                    this.g.strokeStyle = this.pColor;
-                    this.g.arc(this.xy, this.xy, this.radius - this.lineWidth, pa.s, pa.e, pa.d);
-                    this.g.stroke();
-                }
-
-                this.g.beginPath();
-                this.g.strokeStyle = r ? this.o.fgColor : this.fgColor;
-                this.g.arc(this.xy, this.xy, this.radius - this.lineWidth, a.s, a.e, a.d);
-                this.g.stroke();
-
-                this.g.lineWidth = 2;
-                this.g.beginPath();
-                this.g.strokeStyle = this.o.fgColor;
-                this.g.arc(this.xy, this.xy, this.radius - this.lineWidth + 1 + this.lineWidth * 2 / 3, 0, 2 * Math.PI, false);
-                this.g.stroke();
-
-                return false;
-            }
-        }
-    });
-});
+let x = 1;
+Pad1.CreateTrack(x);
